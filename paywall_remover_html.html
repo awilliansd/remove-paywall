@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Removedor de Paywall</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #1f2937;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .alert strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .method-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: box-shadow 0.2s;
+        }
+
+        .method-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .method-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .method-info h3 {
+            font-size: 1.25rem;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .method-info p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .method-btn {
+            padding: 12px 20px;
+            background: #6366f1;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+
+        .method-btn:hover {
+            background: #4f46e5;
+        }
+
+        .tips {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .tips h3 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+
+        .tips ul {
+            list-style: none;
+            color: #1e40af;
+            line-height: 1.8;
+        }
+
+        .tips li::before {
+            content: "• ";
+            font-weight: bold;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            input {
+                min-width: 100%;
+            }
+
+            .method-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .method-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🔓 Removedor de Paywall</h1>
+            <p class="subtitle">Insira a URL do artigo e veja opções para contornar o paywall</p>
+
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="urlInput" 
+                    placeholder="https://exemplo.com/artigo-com-paywall"
+                    autocomplete="url"
+                >
+                <button id="searchBtn">🔍 Buscar</button>
+            </div>
+
+            <div id="errorMsg" class="alert alert-error">
+                <strong>Erro:</strong>
+                <span id="errorText"></span>
+            </div>
+
+            <div class="alert alert-warning show">
+                <strong>⚠️ Aviso Legal:</strong>
+                Esta ferramenta é para fins educacionais. Respeite os direitos autorais e os termos de serviço dos sites. Considere assinar publicações que você lê regularmente para apoiar o jornalismo de qualidade.
+            </div>
+        </div>
+
+        <div id="results" class="results">
+            <h2 style="color: #1f2937; margin-bottom: 20px; font-size: 1.8rem;">Métodos Disponíveis</h2>
+            <div id="methodsContainer"></div>
+
+            <div class="tips">
+                <h3>💡 Dicas:</h3>
+                <ul>
+                    <li>Teste diferentes métodos, pois cada um funciona melhor para sites específicos</li>
+                    <li>12ft.io geralmente funciona bem para sites de notícias populares</li>
+                    <li>Archive.today e Wayback Machine podem ter versões antigas sem paywall</li>
+                    <li>Alguns sites podem não funcionar com nenhum método</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('Script carregado!');
+
+        const bypassMethods = [
+            {
+                name: 'Archive.today',
+                url: (link) => 'https://archive.is/newest/' + link,
+                description: 'Busca versões arquivadas sem paywall'
+            },
+            {
+                name: 'Wayback Machine',
+                url: (link) => 'https://web.archive.org/web/*/' + link,
+                description: 'Versões históricas do Internet Archive'
+            },
+            {
+                name: 'Google Cache',
+                url: (link) => 'https://webcache.googleusercontent.com/search?q=cache:' + link,
+                description: 'Versão em cache do Google'
+            },
+            {
+                name: 'Removepaywall.com',
+                url: (link) => 'https://www.removepaywall.com/' + link,
+                description: 'Serviço especializado em remover paywalls'
+            }
+        ];
+
+        const urlInput = document.getElementById('urlInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const errorText = document.getElementById('errorText');
+        const results = document.getElementById('results');
+        const methodsContainer = document.getElementById('methodsContainer');
+
+        function showError(message) {
+            console.log('Mostrando erro:', message);
+            errorText.textContent = message;
+            errorMsg.classList.add('show');
+        }
+
+        function hideError() {
+            errorMsg.classList.remove('show');
+        }
+
+        function handleSearch() {
+            console.log('Botão clicado!');
+            const url = urlInput.value.trim();
+            
+            hideError();
+            results.classList.remove('show');
+
+            if (!url) {
+                showError('Por favor, insira uma URL');
+                return;
+            }
+
+            try {
+                const fullUrl = url.startsWith('http') ? url : 'https://' + url;
+                console.log('URL processada:', fullUrl);
+                
+                // Testa se é uma URL válida
+                new URL(fullUrl);
+
+                // Limpa container
+                methodsContainer.innerHTML = '';
+
+                // Cria os cards
+                bypassMethods.forEach(function(method) {
+                    const card = document.createElement('div');
+                    card.className = 'method-card';
+                    
+                    const methodUrl = method.url(fullUrl);
+                    
+                    card.innerHTML = 
+                        '<div class="method-header">' +
+                            '<div class="method-info">' +
+                                '<h3>' + method.name + '</h3>' +
+                                '<p>' + method.description + '</p>' +
+                            '</div>' +
+                            '<a href="' + methodUrl + '" target="_blank" rel="noopener noreferrer" class="method-btn">' +
+                                'Tentar Método →' +
+                            '</a>' +
+                        '</div>';
+                    
+                    methodsContainer.appendChild(card);
+                });
+
+                results.classList.add('show');
+                console.log('Resultados exibidos!');
+
+            } catch (err) {
+                console.error('Erro:', err);
+                showError('URL inválida. Por favor, insira uma URL válida (ex: https://exemplo.com/artigo)');
+            }
+        }
+
+        // Event listeners
+        searchBtn.addEventListener('click', function() {
+            console.log('Evento de click registrado');
+            handleSearch();
+        });
+
+        urlInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                console.log('Enter pressionado');
+                handleSearch();
+            }
+        });
+
+        console.log('Event listeners configurados!');
+    </script>
+</body>
+</html>
